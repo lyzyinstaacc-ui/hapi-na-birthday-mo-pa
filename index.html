@@ -92,6 +92,18 @@
 </head>
 <body class="min-h-screen bg-gradient-to-br from-pink-100 via-purple-50 to-blue-100 text-gray-800 flex flex-col justify-between relative overflow-x-hidden">
 
+    <!-- WELCOME OVERLAY FOR BROWSER AUTOPLAY PERMISSION -->
+    <div id="welcomeOverlay" onclick="startExperience()" class="fixed inset-0 z-50 flex flex-col items-center justify-center bg-black/80 backdrop-blur-md text-white cursor-pointer transition-opacity duration-500 p-4">
+        <div class="bg-white/10 border border-white/20 p-8 rounded-3xl text-center max-w-sm shadow-2xl animate-pulse">
+            <div class="text-6xl mb-4">🎁</div>
+            <h2 class="font-display text-2xl sm:text-3xl mb-2 text-yellow-300">A Surprise Birthday Gift!</h2>
+            <p class="text-sm sm:text-base text-gray-200 mb-6">Tap anywhere to open your birthday card & play music</p>
+            <button class="bg-gradient-to-r from-pink-500 to-purple-500 text-white font-bold px-6 py-3 rounded-full shadow-lg text-sm uppercase tracking-wider">
+                Open Card ✨
+            </button>
+        </div>
+    </div>
+
     <!-- Background Layer for Animated Balloons -->
     <div id="balloon-container" class="fixed inset-0 pointer-events-none overflow-hidden z-0"></div>
 
@@ -108,7 +120,6 @@
             </div>
             
             <!-- Hidden HTML5 Audio Element for MP3 File -->
-            <!-- REPLACE 'music.mp3' BELOW WITH YOUR ACTUAL MP3 FILE PATH OR URL -->
             <audio id="bgMusic" loop preload="auto">
                 <source src="music.mp3" type="audio/mpeg">
                 Your browser does not support the audio element.
@@ -134,7 +145,7 @@
         <!-- Locked Photo Frame Center Piece -->
         <!-- ========================================================================= -->
         <!-- TO CHANGE THE PHOTO: Change the 'src' value in the <img> tag below.     -->
-        <!-- Example: src="my_friend_photo.jpg" or src="https://example.com/face.jpg" -->
+        <!-- Example: src="photo.jpg" or src="https://example.com/face.jpg"           -->
         <!-- ========================================================================= -->
         <div class="relative mb-6">
             <div class="relative w-48 h-48 sm:w-60 sm:h-60 rounded-full p-3 bg-gradient-to-tr from-pink-400 via-purple-400 to-yellow-300 photo-frame flex items-center justify-center">
@@ -227,9 +238,6 @@
 
     <!-- JavaScript Application Logic -->
     <script>
-        // =========================================================================
-        // CONFIGURATION VARIABLES (You can also edit greetings here)
-        // =========================================================================
         const FRIEND_NAME = document.getElementById('nameDisplay').innerText.trim();
         
         const phrases = [
@@ -238,6 +246,31 @@
             "Filled with joy and happiness.",
             "May all your dreams come true! 🎉"
         ];
+
+        // --- Start Experience and Trigger Music Autoplay ---
+        function startExperience() {
+            const overlay = document.getElementById('welcomeOverlay');
+            overlay.style.opacity = '0';
+            setTimeout(() => {
+                overlay.style.display = 'none';
+            }, 500);
+
+            // Play Music automatically after user interaction
+            const bgMusic = document.getElementById('bgMusic');
+            const icon = document.getElementById('musicIcon');
+            const status = document.getElementById('musicStatus');
+
+            bgMusic.play().then(() => {
+                isPlaying = true;
+                icon.className = 'fas fa-pause text-sm';
+                status.innerText = 'Playing music';
+            }).catch((err) => {
+                console.log('Audio file missing or blocked:', err);
+                status.innerText = 'Add music.mp3 to folder';
+            });
+
+            triggerConfetti();
+        }
 
         // --- Floating Balloon Animation Setup ---
         function createBalloons() {
@@ -301,12 +334,12 @@
             let typeSpeed = isDeleting ? 40 : 80;
 
             if (!isDeleting && charIndex === currentPhrase.length) {
-                typeSpeed = 2000; // Pause at end of phrase
+                typeSpeed = 2000;
                 isDeleting = true;
             } else if (isDeleting && charIndex === 0) {
                 isDeleting = false;
                 phraseIndex = (phraseIndex + 1) % phrases.length;
-                typeSpeed = 500; // Pause before starting new phrase
+                typeSpeed = 500;
             }
 
             setTimeout(typeLoop, typeSpeed);
@@ -345,7 +378,6 @@
         window.onload = function() {
             createBalloons();
             typeLoop();
-            setTimeout(triggerConfetti, 500);
         };
     </script>
 </body>
