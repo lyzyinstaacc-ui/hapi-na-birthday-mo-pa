@@ -1,0 +1,352 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Happy Birthday!</title>
+    <!-- Tailwind CSS -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    <!-- Canvas Confetti Library -->
+    <script src="https://cdn.jsdelivr.net/npm/canvas-confetti@1.6.0/dist/confetti.browser.min.js"></script>
+    <!-- Google Fonts -->
+    <link href="https://fonts.googleapis.com/css2?family=Fredoka+One&family=Quicksand:wght@400;600;700&display=swap" rel="stylesheet">
+    <!-- FontAwesome Icons -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    
+    <style>
+        body {
+            font-family: 'Quicksand', sans-serif;
+            background: linear-gradient(135deg, #fdfbfb 0%, #ebedee 100%);
+            overflow-x: hidden;
+        }
+        
+        .font-display {
+            font-family: 'Fredoka One', cursive;
+        }
+
+        /* Floating Balloon Animation */
+        @keyframes floatUp {
+            0% {
+                transform: translateY(100vh) rotate(0deg);
+                opacity: 1;
+            }
+            100% {
+                transform: translateY(-200px) rotate(20deg);
+                opacity: 0.8;
+            }
+        }
+
+        .balloon {
+            position: absolute;
+            bottom: -100px;
+            width: 50px;
+            height: 70px;
+            border-radius: 50% 50% 50% 50% / 40% 40% 60% 60%;
+            animation: floatUp 12s linear infinite;
+            z-index: 5;
+            pointer-events: none;
+        }
+
+        .balloon::after {
+            content: "";
+            position: absolute;
+            bottom: -12px;
+            left: 23px;
+            width: 2px;
+            height: 15px;
+            background: rgba(0,0,0,0.2);
+        }
+
+        /* Candle Flame Flickering Effect */
+        @keyframes flicker {
+            0%, 100% { transform: scale(1) rotate(-2deg); opacity: 0.9; }
+            50% { transform: scale(1.15) rotate(2deg); opacity: 1; filter: drop-shadow(0 0 8px #ff9800); }
+        }
+
+        .flame {
+            animation: flicker 0.6s infinite alternate;
+            transform-origin: center bottom;
+        }
+
+        /* Locked Photo Glow Frame */
+        .photo-frame {
+            box-shadow: 0 10px 30px -5px rgba(255, 105, 180, 0.4), 0 0 20px 5px rgba(255, 182, 193, 0.3);
+            transition: all 0.3s ease;
+        }
+        
+        .photo-frame:hover {
+            transform: scale(1.02);
+            box-shadow: 0 15px 35px -5px rgba(255, 105, 180, 0.6), 0 0 25px 8px rgba(255, 182, 193, 0.5);
+        }
+
+        /* Typing cursor animation */
+        .cursor-blink {
+            animation: blink 0.8s infinite;
+        }
+
+        @keyframes blink {
+            0%, 100% { opacity: 1; }
+            50% { opacity: 0; }
+        }
+    </style>
+</head>
+<body class="min-h-screen bg-gradient-to-br from-pink-100 via-purple-50 to-blue-100 text-gray-800 flex flex-col justify-between relative overflow-x-hidden">
+
+    <!-- Background Layer for Animated Balloons -->
+    <div id="balloon-container" class="fixed inset-0 pointer-events-none overflow-hidden z-0"></div>
+
+    <!-- Top Audio Bar for Custom MP3 Music -->
+    <header class="relative z-20 w-full p-4 flex justify-between items-center max-w-4xl mx-auto">
+        <!-- Local MP3 Audio Controls -->
+        <div class="flex items-center space-x-3 bg-white/80 backdrop-blur-md px-4 py-2 rounded-full shadow-md border border-pink-200">
+            <button id="musicToggleBtn" onclick="toggleAudio()" class="w-10 h-10 bg-gradient-to-r from-pink-500 to-purple-500 text-white rounded-full flex items-center justify-center shadow-lg hover:scale-105 active:scale-95 transition-all">
+                <i id="musicIcon" class="fas fa-play text-sm"></i>
+            </button>
+            <div class="flex flex-col pr-1">
+                <span class="text-xs font-bold text-gray-700">Birthday Song</span>
+                <span id="musicStatus" class="text-[10px] text-gray-500">Tap to play music</span>
+            </div>
+            
+            <!-- Hidden HTML5 Audio Element for MP3 File -->
+            <!-- REPLACE 'music.mp3' BELOW WITH YOUR ACTUAL MP3 FILE PATH OR URL -->
+            <audio id="bgMusic" loop preload="auto">
+                <source src="music.mp3" type="audio/mpeg">
+                Your browser does not support the audio element.
+            </audio>
+        </div>
+
+        <button onclick="triggerConfetti()" class="bg-yellow-400 hover:bg-yellow-300 text-yellow-900 font-bold px-4 py-2 rounded-full shadow-md border border-yellow-200 hover:scale-105 active:scale-95 transition-all flex items-center gap-2">
+            <i class="fas fa-gift"></i>
+            <span class="text-sm hidden sm:inline">Celebrate!</span>
+        </button>
+    </header>
+
+    <!-- Main Content Container -->
+    <main class="relative z-10 container mx-auto px-4 py-4 flex flex-col items-center justify-center flex-grow">
+        
+        <!-- Top Celebration Banner -->
+        <div class="text-center mb-6">
+            <div class="inline-block bg-gradient-to-r from-pink-500 via-red-400 to-purple-500 text-white px-6 py-2 rounded-full shadow-lg font-display text-xl sm:text-2xl tracking-wide uppercase mb-2 animate-bounce">
+                ✨ 🎉 Happy Birthday! 🎉 ✨
+            </div>
+        </div>
+
+        <!-- Locked Photo Frame Center Piece -->
+        <!-- ========================================================================= -->
+        <!-- TO CHANGE THE PHOTO: Change the 'src' value in the <img> tag below.     -->
+        <!-- Example: src="my_friend_photo.jpg" or src="https://example.com/face.jpg" -->
+        <!-- ========================================================================= -->
+        <div class="relative mb-6">
+            <div class="relative w-48 h-48 sm:w-60 sm:h-60 rounded-full p-3 bg-gradient-to-tr from-pink-400 via-purple-400 to-yellow-300 photo-frame flex items-center justify-center">
+                <div class="w-full h-full rounded-full overflow-hidden bg-white relative border-4 border-white shadow-inner flex items-center justify-center">
+                    <img id="friendPhoto" 
+                         src="https://images.unsplash.com/photo-1534528741775-53994a69daeb?auto=format&fit=crop&w=600&q=80" 
+                         alt="Friend's Face" 
+                         class="w-full h-full object-cover select-none pointer-events-none">
+                </div>
+            </div>
+
+            <!-- Crown Decoration Above Picture -->
+            <div class="absolute -top-7 left-1/2 -translate-x-1/2 text-4xl sm:text-5xl drop-shadow-md transform -rotate-12 pointer-events-none">
+                👑
+            </div>
+        </div>
+
+        <!-- Locked Friend Name & Dynamic Typing Greeting -->
+        <div class="text-center max-w-xl mx-auto mb-6 px-4">
+            <!-- ========================================================= -->
+            <!-- TO CHANGE FRIEND'S NAME: Edit the text inside <h1> below -->
+            <!-- ========================================================= -->
+            <h1 id="nameDisplay" class="font-display text-3xl sm:text-5xl text-transparent bg-clip-text bg-gradient-to-r from-pink-600 via-purple-600 to-indigo-600 select-none mb-2">
+                Alex
+            </h1>
+
+            <!-- Dynamic Animated Typed Greeting -->
+            <div class="min-h-[60px] flex items-center justify-center">
+                <p class="text-lg sm:text-2xl font-bold text-gray-700">
+                    <span id="typedText"></span><span class="typed-cursor text-pink-500 font-bold cursor-blink">|</span>
+                </p>
+            </div>
+        </div>
+
+        <!-- Interactive Birthday Cake with Blowable Candles -->
+        <div class="relative my-4 flex flex-col items-center">
+            <div class="cursor-pointer group" onclick="toggleCandles()" title="Click cake to blow out candles!">
+                
+                <!-- SVG Birthday Cake -->
+                <svg width="220" height="180" viewBox="0 0 200 160" class="drop-shadow-xl transition-transform group-hover:scale-105">
+                    <!-- Cake Stand -->
+                    <ellipse cx="100" cy="150" rx="90" ry="10" fill="#e2e8f0" />
+                    <rect x="90" y="140" width="20" height="10" fill="#cbd5e1" />
+                    <ellipse cx="100" cy="142" rx="75" ry="8" fill="#f1f5f9" />
+
+                    <!-- Layer 1 (Bottom Cake Layer) -->
+                    <path d="M 35 110 Q 35 140 100 140 Q 165 140 165 110 L 165 125 Q 165 145 100 145 Q 35 145 35 125 Z" fill="#f472b6" />
+                    <rect x="35" y="110" width="130" height="20" fill="#f472b6" />
+                    <!-- Frosting -->
+                    <path d="M 35 110 Q 45 120 55 110 Q 65 120 75 110 Q 85 120 95 110 Q 105 120 115 110 Q 125 120 135 110 Q 145 120 155 110 Q 165 120 165 110" fill="none" stroke="#fff" stroke-width="4" stroke-linecap="round" />
+
+                    <!-- Layer 2 (Top Cake Layer) -->
+                    <rect x="50" y="80" width="100" height="30" fill="#fb7185" />
+                    <ellipse cx="100" cy="80" rx="50" ry="10" fill="#fff" />
+                    <!-- Cream drips -->
+                    <path d="M 50 80 Q 55 95 60 80 Q 70 100 80 80 Q 90 92 100 80 Q 110 98 120 80 Q 130 95 140 80 Q 145 92 150 80" fill="#fff" />
+
+                    <!-- Candles -->
+                    <rect x="70" y="50" width="6" height="30" rx="3" fill="#60a5fa" />
+                    <rect x="97" y="45" width="6" height="35" rx="3" fill="#facc15" />
+                    <rect x="124" y="50" width="6" height="30" rx="3" fill="#4ade80" />
+
+                    <!-- Candle Flames -->
+                    <g id="flame1" class="flame">
+                        <ellipse cx="73" cy="43" rx="4" ry="7" fill="#ff9800" />
+                        <ellipse cx="73" cy="44" rx="2" ry="4" fill="#ffeb3b" />
+                    </g>
+                    <g id="flame2" class="flame">
+                        <ellipse cx="100" cy="37" rx="5" ry="9" fill="#ff9800" />
+                        <ellipse cx="100" cy="38" rx="2.5" ry="5" fill="#ffeb3b" />
+                    </g>
+                    <g id="flame3" class="flame">
+                        <ellipse cx="127" cy="43" rx="4" ry="7" fill="#ff9800" />
+                        <ellipse cx="127" cy="44" rx="2" ry="4" fill="#ffeb3b" />
+                    </g>
+                </svg>
+            </div>
+            
+            <p id="candleHint" class="text-xs text-gray-500 mt-2 font-medium bg-white/70 px-3 py-1 rounded-full shadow-sm">
+                🕯️ Tap cake to blow out candles!
+            </p>
+        </div>
+
+    </main>
+
+    <!-- Footer Greetings -->
+    <footer class="relative z-10 py-4 text-center text-xs text-gray-500">
+        Made with ❤️ for a very special birthday
+    </footer>
+
+    <!-- JavaScript Application Logic -->
+    <script>
+        // =========================================================================
+        // CONFIGURATION VARIABLES (You can also edit greetings here)
+        // =========================================================================
+        const FRIEND_NAME = document.getElementById('nameDisplay').innerText.trim();
+        
+        const phrases = [
+            `Happy Birthday, ${FRIEND_NAME}!`,
+            "Have a wonderful day!",
+            "Filled with joy and happiness.",
+            "May all your dreams come true! 🎉"
+        ];
+
+        // --- Floating Balloon Animation Setup ---
+        function createBalloons() {
+            const container = document.getElementById('balloon-container');
+            const colors = ['#ff7675', '#74b9ff', '#55efc4', '#ffeaa7', '#a29bfe', '#fd79a8'];
+            
+            for (let i = 0; i < 15; i++) {
+                const balloon = document.createElement('div');
+                balloon.className = 'balloon';
+                balloon.style.left = `${Math.random() * 100}%`;
+                balloon.style.backgroundColor = colors[Math.floor(Math.random() * colors.length)];
+                balloon.style.animationDelay = `${Math.random() * 8}s`;
+                balloon.style.animationDuration = `${8 + Math.random() * 8}s`;
+                container.appendChild(balloon);
+            }
+        }
+
+        // --- Custom MP3 Audio Control ---
+        const bgMusic = document.getElementById('bgMusic');
+        let isPlaying = false;
+
+        function toggleAudio() {
+            const icon = document.getElementById('musicIcon');
+            const status = document.getElementById('musicStatus');
+
+            if (isPlaying) {
+                bgMusic.pause();
+                isPlaying = false;
+                icon.className = 'fas fa-play text-sm';
+                status.innerText = 'Tap to play music';
+            } else {
+                bgMusic.play().then(() => {
+                    isPlaying = true;
+                    icon.className = 'fas fa-pause text-sm';
+                    status.innerText = 'Playing music';
+                    triggerConfetti();
+                }).catch((err) => {
+                    console.log('Audio playback prevented or music file missing:', err);
+                    status.innerText = 'Add music.mp3 to folder';
+                });
+            }
+        }
+
+        // --- Dynamic Typing Greeting ---
+        let phraseIndex = 0;
+        let charIndex = 0;
+        let isDeleting = false;
+        const typedTextElement = document.getElementById('typedText');
+
+        function typeLoop() {
+            const currentPhrase = phrases[phraseIndex];
+
+            if (isDeleting) {
+                typedTextElement.textContent = currentPhrase.substring(0, charIndex - 1);
+                charIndex--;
+            } else {
+                typedTextElement.textContent = currentPhrase.substring(0, charIndex + 1);
+                charIndex++;
+            }
+
+            let typeSpeed = isDeleting ? 40 : 80;
+
+            if (!isDeleting && charIndex === currentPhrase.length) {
+                typeSpeed = 2000; // Pause at end of phrase
+                isDeleting = true;
+            } else if (isDeleting && charIndex === 0) {
+                isDeleting = false;
+                phraseIndex = (phraseIndex + 1) % phrases.length;
+                typeSpeed = 500; // Pause before starting new phrase
+            }
+
+            setTimeout(typeLoop, typeSpeed);
+        }
+
+        // --- Candle Blow Out Interactive Logic ---
+        let candlesLit = true;
+        function toggleCandles() {
+            const flames = [document.getElementById('flame1'), document.getElementById('flame2'), document.getElementById('flame3')];
+            const hint = document.getElementById('candleHint');
+
+            if (candlesLit) {
+                flames.forEach(f => f.style.display = 'none');
+                candlesLit = false;
+                hint.innerText = '✨ Make a wish! Tap cake to relight candles.';
+                triggerConfetti();
+            } else {
+                flames.forEach(f => f.style.display = 'block');
+                candlesLit = true;
+                hint.innerText = '🕯️ Tap cake to blow out candles!';
+            }
+        }
+
+        // --- Confetti Animation ---
+        function triggerConfetti() {
+            if (typeof confetti === 'function') {
+                confetti({
+                    particleCount: 80,
+                    spread: 70,
+                    origin: { y: 0.6 }
+                });
+            }
+        }
+
+        // --- Initialization ---
+        window.onload = function() {
+            createBalloons();
+            typeLoop();
+            setTimeout(triggerConfetti, 500);
+        };
+    </script>
+</body>
+</html>
